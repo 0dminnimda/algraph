@@ -10,6 +10,12 @@
 #define SOURCE "source/main.cpp"
 #define EXE "algraph.exe"
 
+#ifdef _WIN32
+#define EXE_PREFIX
+#else
+#define EXE_PREFIX "./"
+#endif
+
 bool compile() {
     Cmd cmd = {0};
 
@@ -28,7 +34,7 @@ bool compile_and_run() {
     if (!compile()) return 1;
 
     Cmd cmd = {0};
-    cmd_append(&cmd, EXE);
+    cmd_append(&cmd, EXE_PREFIX EXE);
     return cmd_run_sync_and_reset(&cmd);
 }
 
