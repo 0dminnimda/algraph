@@ -6,12 +6,14 @@
 #include <string.h>
 #include <stdio.h>
 #include "types.h"
+#include <string>
 
 struct str {
     char *data = NULL;
     u64 length = 0;
 
     char &operator[](u64 index);
+    bool operator==(const str& other) const;
 
     char *begin();
     char *end();
@@ -23,12 +25,17 @@ struct str {
  * But it's never counted towards the length.
  */
 
+
 #define PRI_str "%.*s"
 #define FMT_str(self) (int)(self).length, (self).data
 #define FMT_str_max(self, max) ((self).length > (max)? (max) : (int)(self).length), (self).data
 #define str_NULL (str){NULL, 0}
 #define PRI_var_char "%*.c"
 #define FMT_var_char(char, count) (int)(count), (char)
+
+inline std::string to_string(const str& s) {
+    return std::string((char *)s.data, s.length);
+}
 
 str str_slice(str self, u64 start, u64 end);
 
@@ -44,7 +51,6 @@ str str_copy(str self);
 str str_add_array(const str *items, u64 count);
 
 int str_compare(str self, str other);
-bool operator==(str self, str other);
 
 bool str_startswith(str self, str other);
 
@@ -166,8 +172,8 @@ int str_compare(str self, str other) {
     }
 }
 
-bool operator==(str self, str other) {
-    return str_compare(self, other) == 0;
+bool str::operator==(str other) const {
+    return str_compare(*this, other) == 0;
 }
 
 bool str_startswith(str self, str other) {
@@ -250,7 +256,7 @@ str str_tokenize_whitespace(str *self) {
 str read_entire_file(str file_path) {
     FILE *f = fopen(file_path.data, "rb");
     if (f == NULL) {
-        hprint::fprint(stderr, "Could not open file: %\n", file_path);
+        hp::fprint(stderr, "Could not open file: %\n", file_path);
         return str_NULL;
     }
     fseek(f, 0, SEEK_END);
@@ -264,7 +270,7 @@ str read_entire_file(str file_path) {
     fclose(f);
 
     if (read != fsize) {
-        hprint::fprint(stderr, "File (%) changed size wihle reading\n", file_path);
+        hp::fprint(stderr, "File (%) changed size wihle reading\n", file_path);
         free(cstr);
         return str_NULL;
     }
@@ -287,7 +293,7 @@ str str_format_raw(u64 to_add, str format, ...) {
 
 void str_debug_fprint(str self, FILE *stream) {
     for (char &c : self) {
-        hprint::fprint(stream, "[%] = '%' (%)\n", (&c - self.data), c, (u8)c);
+        hp::fprint(stream, "[%] = '%' (%)\n", (&c - self.data), c, (char)c);
     }
 }
 
