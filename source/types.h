@@ -4,7 +4,6 @@
 #define TYPES_H
 
 #include <stdint.h>
-#include <inttypes.h>
 
 /* Signed numbers */
 typedef int8_t s8;
