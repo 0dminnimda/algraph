@@ -19,7 +19,7 @@
  * - Extensible for user-defined types via `to_string(const T&)`.
  * - Avoids iostreams.
  */
-namespace hprint {
+namespace hp {
 namespace detail {
 
     // Helper to count specifiers at runtime. This is cheap.
@@ -49,14 +49,14 @@ namespace detail {
             return (val == nullptr) ? std::string{"(null)"} : std::string{val};
         } else if constexpr (std::is_same_v<DecayedT, char>) {
             return {val};
-        } else if constexpr (std::is_arithmetic_v<DecayedT> && !std::is_same_v<DecayedT, bool> && !std::is_same_v<DecayedT, char>) {
-            return std::to_string(val);
         } else if constexpr (std::is_same_v<DecayedT, bool>) {
             return val ? "true" : "false";
         } else if constexpr (std::is_pointer_v<DecayedT>) {
             char buffer[20];
             std::snprintf(buffer, sizeof(buffer), "%p", static_cast<const void*>(val));
             return buffer;
+        } else if constexpr (std::is_arithmetic_v<DecayedT>) {
+            return std::to_string(val);
         } else if constexpr (has_adl_to_string<const T&>::value) {
             return to_string(val);
         } else {
@@ -160,6 +160,6 @@ template<typename... Args>
     return result;
 }
 
-} // namespace hprint
+} // namespace hp
 
 #endif // HPRINT_HPP
