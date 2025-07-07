@@ -8,8 +8,8 @@
 #include "types.h"
 
 struct str {
-    char *data;
-    u64 length;
+    char *data = NULL;
+    u64 length = 0;
 
     char &operator[](u64 index);
 
@@ -73,6 +73,7 @@ void str_debug_fprint(str self, FILE *stream);
 #include <ctype.h>
 #include <stdarg.h>
 #include <assert.h>
+#include "hprint.hpp"
 
 char *str::begin() { return data; }
 char *str::end() { return data + length; }
@@ -143,6 +144,7 @@ str str_add_array(const str *items, u64 count) {
         len += items[i].length;
     }
     str result = {(char*)malloc((len + 1) * sizeof(char)), len};
+    assert((result.data != NULL) && "Buy more RAM lol!");
     len = 0;
     for (u64 i = 0; i < count; i++) {
         memcpy(result.data + len, items[i].data, items[i].length);
@@ -248,7 +250,7 @@ str str_tokenize_whitespace(str *self) {
 str read_entire_file(str file_path) {
     FILE *f = fopen(file_path.data, "rb");
     if (f == NULL) {
-        fprintf(stderr, "Could not open file: " PRI_str "\n", FMT_str(file_path));
+        hprint::fprint(stderr, "Could not open file: %\n", file_path);
         return str_NULL;
     }
     fseek(f, 0, SEEK_END);
@@ -256,8 +258,16 @@ str read_entire_file(str file_path) {
     fseek(f, 0, SEEK_SET);
 
     char *cstr = (char *)malloc(fsize + 1);
-    fread(cstr, fsize, 1, f);
+    assert((cstr != NULL) && "Buy more RAM lol!");
+
+    size_t read = fread(cstr, 1, fsize, f);
     fclose(f);
+
+    if (read != fsize) {
+        hprint::fprint(stderr, "File (%) changed size wihle reading\n", file_path);
+        free(cstr);
+        return str_NULL;
+    }
 
     cstr[fsize] = 0;
     return (str){cstr, fsize};
@@ -277,7 +287,7 @@ str str_format_raw(u64 to_add, str format, ...) {
 
 void str_debug_fprint(str self, FILE *stream) {
     for (char &c : self) {
-        fprintf(stream, "[%zu] = '%c' (" PRI_u8 ")\n", (&c - self.data), c, (u8)c);
+        hprint::fprint(stream, "[%] = '%' (%)\n", (&c - self.data), c, (u8)c);
     }
 }
 
