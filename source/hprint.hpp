@@ -108,29 +108,39 @@ namespace detail {
 
 } // namespace detail
 
+/* Prints formatted text to stream. Asserts on argument mismatch in debug builds. */
+template<typename... Args>
+void fprint(FILE *stream, const char* format_str, Args&&... args) {
+    assert(detail::count_specifiers(format_str) == sizeof...(args) &&
+           "hprint: Mismatch between number of format specifiers ('%') and arguments.");
+
+    auto stdout_writer = [&stream](std::string_view sv) {
+        fwrite(sv.data(), 1, sv.size(), stream);
+    };
+    detail::print_impl(stdout_writer, format_str, std::forward<Args>(args)...);
+}
+
+/* Prints formatted text to stream, followed by a newline. */
+template<typename... Args>
+void fprintln(FILE *stream, const char* format_str, Args&&... args) {
+    assert(detail::count_specifiers(format_str) == sizeof...(args) &&
+           "hprint: Mismatch between number of format specifiers ('%') and arguments.");
+
+    fprint(stream, format_str, std::forward<Args>(args)...);
+    fputc('\n', stdout);
+}
+
 
 /* Prints formatted text to stdout. Asserts on argument mismatch in debug builds. */
 template<typename... Args>
 void print(const char* format_str, Args&&... args) {
-    // This assertion will only be active in debug builds (when NDEBUG is not defined).
-    // In release builds, it compiles to nothing.
-    assert(detail::count_specifiers(format_str) == sizeof...(args) &&
-           "hprint: Mismatch between number of format specifiers ('%') and arguments.");
-
-    auto stdout_writer = [](std::string_view sv) {
-        fwrite(sv.data(), 1, sv.size(), stdout);
-    };
-    detail::print_impl(stdout_writer, format_str, std::forward<Args>(args)...);
+    fprint(stdout, format_str, std::forward<Args>(args)...);
 }
 
 /* Prints formatted text to stdout, followed by a newline. */
 template<typename... Args>
 void println(const char* format_str, Args&&... args) {
-    assert(detail::count_specifiers(format_str) == sizeof...(args) &&
-           "hprint: Mismatch between number of format specifiers ('%') and arguments.");
-
-    print(format_str, std::forward<Args>(args)...);
-    fputc('\n', stdout);
+    fprintln(stdout, format_str, std::forward<Args>(args)...);
 }
 
 /* Formats text into a std::string. */
