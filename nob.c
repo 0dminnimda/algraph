@@ -4,7 +4,7 @@
 #define get_arg(argv, argc) (argc > 0? shift(argv, argc) : "")
 
 #define COMPILER "clang++"
-#define COMMON_FLAGS "-O1", "-Wno-unused-const-variable"
+#define COMMON_FLAGS "-O1", "-Wno-unused-const-variable", "-Wno-writable-strings", "-Wno-vla-cxx-extension"
 #define WARNING_FLAGS "-Wall", "-Wextra"
 
 #define SOURCE "source/main.cpp"
