@@ -67,7 +67,7 @@ void array_add(Array<T> *array, T element) {
 }
 
 template <typename T>
-void array_add_range(Array<T> *array, T *elements, size_t count) {
+void array_add_range(Array<T> *array, const T *elements, size_t count) {
     array_reserve_to_add(array, count);
     memcpy(array->data + array->length, elements, count * sizeof(T));
     array->length += count;
@@ -83,7 +83,7 @@ T array_pop(Array<T> *array) {
 template<typename T>
 Array<T> array_from_init_list(std::initializer_list<T> init) {
     Array<T> array = {};
-    array_add_range(&array, (T*)init.begin(), init.size());
+    array_add_range(&array, init.begin(), init.size());
     return array;
 }
 
