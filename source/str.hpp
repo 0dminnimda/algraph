@@ -6,7 +6,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "types.h"
-#include <string>
 
 struct str {
     char *data = NULL;
@@ -30,9 +29,6 @@ struct str {
 #define PRI_var_char "%*.c"
 #define FMT_var_char(char, count) (int)(count), (char)
 
-inline std::string to_string(const str& s) {
-    return std::string((char *)s.data, s.length);
-}
 char *begin(str&);
 char *end(str&);
 
@@ -78,7 +74,6 @@ void str_debug_fprint(str self, FILE *stream);
 #include <ctype.h>
 #include <stdarg.h>
 #include <assert.h>
-#include "hprint.hpp"
 
 char *begin(str &self) { return self.data; }
 char *end(str &self) { return self.data + self.length; }
@@ -114,9 +109,9 @@ char *string_duplicate_known_length(const char *source, u64 length) {
 }
 
 str str_slice(str self, u64 start, u64 end) {
-    assert((start > self.length) && "Start is out of bounds");
-    assert((end > self.length) && "End is out of bounds");
-    assert((end < start) && "start is after the end");
+    assert(start <= self.length && "'start' is out of bounds");
+    assert(end <= self.length && "'end' is out of bounds");
+    assert(start <= end && "'start' is after the 'end'");
     return (str){self.data + start, end - start};
 }
 
@@ -255,7 +250,7 @@ str str_tokenize_whitespace(str *self) {
 str read_entire_file(str file_path) {
     FILE *f = fopen(file_path.data, "rb");
     if (f == NULL) {
-        hp::fprint(stderr, "Could not open file: %\n", file_path);
+        fprintf(stderr, "Could not open file: " PRI_str "\n", FMT_str(file_path));
         return str_NULL;
     }
     fseek(f, 0, SEEK_END);
@@ -269,7 +264,7 @@ str read_entire_file(str file_path) {
     fclose(f);
 
     if (read != fsize) {
-        hp::fprint(stderr, "File (%) changed size wihle reading\n", file_path);
+        fprintf(stderr, "File (" PRI_str ") changed size wihle reading\n", FMT_str(file_path));
         free(cstr);
         return str_NULL;
     }
@@ -292,7 +287,7 @@ str str_format_raw(u64 to_add, str format, ...) {
 
 void str_debug_fprint(str self, FILE *stream) {
     for (char &c : self) {
-        hp::fprint(stream, "[%] = '%' (%)\n", (&c - self.data), c, (char)c);
+        fprintf(stream, "[%zu] = '%c' (%d)\n", (&c - self.data), c, c);
     }
 }
 
