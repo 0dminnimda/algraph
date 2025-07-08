@@ -27,70 +27,70 @@ template <typename T>
 T *end(Array<T>& arr) { return arr.data + arr.length; }
 
 template <typename T>
-void array_free(Array<T> *arr) {
-    free(arr->data);
+void array_free(Array<T> *array) {
+    free(array->data);
     // Reset to a clean state to prevent use-after-free errors.
-    arr->data = nullptr;
-    arr->length = 0;
-    arr->capacity = 0;
+    array->data = nullptr;
+    array->length = 0;
+    array->capacity = 0;
 }
 
 template <typename T>
-void array_reserve(Array<T> *arr, size_t min_capacity) {
-    if (arr->capacity >= min_capacity) {
+void array_reserve(Array<T> *array, size_t min_capacity) {
+    if (array->capacity >= min_capacity) {
         return;
     }
-    arr->capacity = min_capacity;
-    arr->data = (T *)realloc(arr->data, arr->capacity * sizeof(T));
-    assert(arr->data != nullptr && "Buy more RAM lol!");
+    array->capacity = min_capacity;
+    array->data = (T *)realloc(array->data, array->capacity * sizeof(T));
+    assert(array->data != nullptr && "Buy more RAM lol!");
 }
 
 template <typename T>
-void array_reserve_to_add(Array<T> *arr, size_t added_length) {
-    size_t required_length = arr->length + added_length;
-    if (arr->capacity > required_length) return;
+void array_reserve_to_add(Array<T> *array, size_t added_length) {
+    size_t required_length = array->length + added_length;
+    if (array->capacity > required_length) return;
 
-    size_t new_capacity = arr->capacity == 0 ? 8 : arr->capacity;
+    size_t new_capacity = array->capacity == 0 ? 8 : array->capacity;
     while (new_capacity < required_length) {
         new_capacity *= 2;
     }
-    arr->capacity = min_capacity;
-    arr->data = (T *)realloc(arr->data, arr->capacity * sizeof(T));
-    assert(arr->data != nullptr && "Buy more RAM lol!");
+    array->capacity = min_capacity;
+    array->data = (T *)realloc(array->data, array->capacity * sizeof(T));
+    assert(array->data != nullptr && "Buy more RAM lol!");
 }
 
 template <typename T>
-void array_add(Array<T> *arr, T element) {
-    array_reserve_to_add(arr, 1);
-    arr->data[arr->length] = element;
-    arr->length++;
+void array_add(Array<T> *array, T element) {
+    array_reserve_to_add(array, 1);
+    array->data[array->length] = element;
+    array->length++;
 }
 
 template <typename T>
-void array_add_range(Array<T> *arr, T *elements, size_t count) {
-    array_reserve_to_add(arr, count);
-    memcpy(arr->data + arr->length, elements, count * sizeof(T));
-    arr->length += count;
+void array_add_range(Array<T> *array, T *elements, size_t count) {
+    array_reserve_to_add(array, count);
+    memcpy(array->data + array->length, elements, count * sizeof(T));
+    array->length += count;
 }
 
 template <typename T>
-T array_pop(Array<T> *arr) {
-    assert(arr->length > 0 && "Cannot pop from an empty array");
-    arr->length--;
-    return arr->data[arr->length];
+T array_pop(Array<T> *array) {
+    assert(array->length > 0 && "Cannot pop from an empty array");
+    array->length--;
+    return array->data[array->length];
 }
 
 template<typename T>
 Array<T> array_from_init_list(std::initializer_list<T> init) {
-    Array<T> arr = {};
+    Array<T> array = {};
     size_t count = init.size();
-    if (count == 0) return arr;
-    arr.length = count;
-    arr.capacity = count;
-    arr.data = (T*)malloc(arr.capacity * sizeof(T));
-    assert(arr.data != nullptr && "Failed to allocate memory");
-    memcpy(arr.data, init.begin(), count * sizeof(T));
-    return arr;
+    if (count == 0) return array;
+    array.length = count;
+    array.capacity = count;
+    array.data = (T*)malloc(array.capacity * sizeof(T));
+    assert(array.data != nullptr && "Failed to allocate memory");
+    memcpy(array.data, init.begin(), count * sizeof(T));
+    return array;
 }
 
 // Example: array_of(10, 20, 30)
