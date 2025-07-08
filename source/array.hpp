@@ -48,7 +48,7 @@ void array_reserve(Array<T> *array, size_t min_capacity) {
 template <typename T>
 void array_reserve_to_add(Array<T> *array, size_t added_length) {
     size_t required_length = array->length + added_length;
-    if (array->capacity > required_length) return;
+    if (array->capacity >= required_length) return;
 
     size_t new_capacity = array->capacity == 0 ? 8 : array->capacity;
     while (new_capacity < required_length) {
