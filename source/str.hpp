@@ -14,9 +14,6 @@ struct str {
 
     char &operator[](u64 index);
     bool operator==(const str& other) const;
-
-    char *begin();
-    char *end();
 };
 
 /* Usually have null terminators, except for slices
@@ -36,6 +33,8 @@ struct str {
 inline std::string to_string(const str& s) {
     return std::string((char *)s.data, s.length);
 }
+char *begin(str&);
+char *end(str&);
 
 str str_slice(str self, u64 start, u64 end);
 
@@ -81,8 +80,8 @@ void str_debug_fprint(str self, FILE *stream);
 #include <assert.h>
 #include "hprint.hpp"
 
-char *str::begin() { return data; }
-char *str::end() { return data + length; }
+char *begin(str &self) { return self.data; }
+char *end(str &self) { return self.data + self.length; }
 
 char *string_duplicate(const char *source) {
     u64 len = strlen(source) + 1;
