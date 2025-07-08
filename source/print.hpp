@@ -1,3 +1,13 @@
+/*
+ * print.hpp - A simple, header-only, type-safe C++ printing library. Similar to C++20 std::format or Python f-strings.
+ *
+ * - Uses '%' for specifiers, '`%' for escaping.
+ * - Extensible for user-defined types via `to_str(Array<char>* builder, const T& val)`.
+ * - Avoids s.
+ * - It does NOT use `std::string` or `iostream` at any point.
+ * - In Debug builds (NDEBUG not defined), asserts that argument count matches specifiers.
+ */
+
 #ifndef PRINT_HPP
 #define PRINT_HPP
 
@@ -21,17 +31,8 @@ void print_impl_recursive(Array<char>* builder, const char* fmt, T&& arg, Rest&&
 
 } // namespace print_detail
 
-
-/**
- * Type-safe, extensible string formatting that returns a new `str`.
- *
- * This function provides type-safe formatting similar to C++20 std::format or Python f-strings.
- * - It does NOT use `std::string` at any point.
- * - It returns a new, heap-allocated `str` object. The caller is responsible for
- *   freeing this `str` using `str_free`.
- * - To extend it for your own type `MyType`, provide the following function in
- *   the same namespace as your type (or in the global namespace):
- *   `void to_chars_custom(Array<char>& builder, const MyType& val)`
+/*
+ * - Returns a new, heap-allocated `str` object. The caller is responsible for freeing this `str` using `str_free`.
  */
 template<typename... Args>
 [[nodiscard]] str sprint(const char* format_str, Args&&... args) {
