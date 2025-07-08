@@ -54,7 +54,7 @@ void array_reserve_to_add(Array<T> *array, size_t added_length) {
     while (new_capacity < required_length) {
         new_capacity *= 2;
     }
-    array->capacity = min_capacity;
+    array->capacity = new_capacity;
     array->data = (T *)realloc(array->data, array->capacity * sizeof(T));
     assert(array->data != nullptr && "Buy more RAM lol!");
 }
