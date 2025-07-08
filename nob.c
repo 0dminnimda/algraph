@@ -2,6 +2,7 @@
 #define NOB_STRIP_PREFIX
 #include "nob.h"
 #define get_arg(argv, argc) (argc > 0? shift(argv, argc) : "")
+#define NO_COMMAND NULL
 
 #define COMPILER "clang++"
 #define COMMON_FLAGS "-O1", "-Wno-unused-const-variable", "-Wno-writable-strings", "-Wno-vla-cxx-extension"
@@ -55,12 +56,14 @@ int main(int argc, char **argv) {
     char *program = get_arg(argv, argc);
     char *target = get_arg(argv, argc);
 
-    if (strcmp(target, "help") == 0) {
-        return help(program);
+    if (target == NO_COMMAND) {
+        if (!compile()) return 1;
     } else if (strcmp(target, "run") == 0) {
         if (!compile_and_run()) return 1;
+    } else if (strcmp(target, "debug") == 0) {
+        if (!compile_and_run()) return 1;
     } else {
-        if (!compile()) return 1;
+        return help(program);
     }
 
     return 0;
