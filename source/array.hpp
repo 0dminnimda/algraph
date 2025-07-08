@@ -15,7 +15,7 @@ struct Array {
     size_t capacity = 0;
 
     T &operator[](size_t index) {
-        assert(index < length);
+        assert(index < length && "'index' out of bounds");
         return data[index];
     }
 };
