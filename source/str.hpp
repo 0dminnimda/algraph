@@ -171,7 +171,7 @@ int str_compare(str self, str other) {
     }
 }
 
-bool str::operator==(str other) const {
+bool str::operator==(const str& other) const {
     return str_compare(*this, other) == 0;
 }
 
