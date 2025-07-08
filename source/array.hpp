@@ -46,13 +46,31 @@ void array_reserve(Array<T> *arr, size_t min_capacity) {
 }
 
 template <typename T>
-void array_push(Array<T> *arr, T element) {
-    if (arr->length >= arr->capacity) {
-        size_t new_capacity = arr->capacity == 0 ? 8 : arr->capacity * 2;
-        array_reserve(arr, new_capacity);
+void array_reserve_to_add(Array<T> *arr, size_t added_length) {
+    size_t required_length = arr->length + added_length;
+    if (arr->capacity > required_length) return;
+
+    size_t new_capacity = arr->capacity == 0 ? 8 : arr->capacity;
+    while (new_capacity < required_length) {
+        new_capacity *= 2;
     }
+    arr->capacity = min_capacity;
+    arr->data = (T *)realloc(arr->data, arr->capacity * sizeof(T));
+    assert(arr->data != nullptr && "Buy more RAM lol!");
+}
+
+template <typename T>
+void array_add(Array<T> *arr, T element) {
+    array_reserve_to_add(arr, 1);
     arr->data[arr->length] = element;
     arr->length++;
+}
+
+template <typename T>
+void array_add_range(Array<T> *arr, T *elements, size_t count) {
+    array_reserve_to_add(arr, count);
+    memcpy(arr->data + arr->length, elements, count * sizeof(T));
+    arr->length += count;
 }
 
 template <typename T>
