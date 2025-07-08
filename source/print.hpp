@@ -29,6 +29,20 @@ void print_impl_recursive(Array<char>* builder, const char* fmt);
 template<typename T, typename... Rest>
 void print_impl_recursive(Array<char>* builder, const char* fmt, T&& arg, Rest&&... rest);
 
+constexpr size_t count_specifiers(const char* fmt) {
+    size_t count = 0;
+    for (const char* p = fmt; *p; ++p) {
+        if (*p == '%') {
+            if (*(p + 1) == '%') {
+                p++; // Skip the second '%'
+            } else {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
 } // namespace print_detail
 
 /*
@@ -36,10 +50,18 @@ void print_impl_recursive(Array<char>* builder, const char* fmt, T&& arg, Rest&&
  */
 template<typename... Args>
 [[nodiscard]] str sprint(const char* format_str, Args&&... args) {
+    assert(print_detail::count_specifiers(format_str) == sizeof...(args) &&
+           "print: Mismatch between format specifiers (%) and arguments");
+    assert(format_str != NULL && "Don't pass NULL as format string!");
+
     Array<char> builder = {};
-    array_reserve(&builder, strlen(format_str) + (sizeof...(args) * 8)); // Initial guess
+    array_reserve(&builder, strlen(format_str) + (sizeof...(args) * 8)); // guess
 
     print_detail::print_impl_recursive(&builder, (char*)format_str, std::forward<Args>(args)...);
+
+    // now it also works with C functions
+    array_reserve_to_add(&builder, 1);
+    *(builder.data + builder.length) = '\0';
 
     return (str){builder.data, builder.length};
 }
