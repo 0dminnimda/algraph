@@ -83,13 +83,7 @@ T array_pop(Array<T> *array) {
 template<typename T>
 Array<T> array_from_init_list(std::initializer_list<T> init) {
     Array<T> array = {};
-    size_t count = init.size();
-    if (count == 0) return array;
-    array.length = count;
-    array.capacity = count;
-    array.data = (T*)malloc(array.capacity * sizeof(T));
-    assert(array.data != nullptr && "Failed to allocate memory");
-    memcpy(array.data, init.begin(), count * sizeof(T));
+    array_add_range(&array, (T*)init.begin(), init.size());
     return array;
 }
 
